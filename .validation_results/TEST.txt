@@ -1,0 +1,1 @@
+No test projects found in solution. The repository contains a Blazor WebAssembly application project (TestBlazor.csproj) but no test projects with testing frameworks (xUnit, NUnit, MSTest) configured.

@@ -1,0 +1,14 @@
+Determining projects to restore...
+  All projects are up-to-date for restore.
+/tmp/workspace/7af93053-68d1-4fe7-b472-de88346c34a6/repo/TestBlazor/Program.cs(6,1): error CS0103: The name 'builder' does not exist in the current context [/tmp/workspace/7af93053-68d1-4fe7-b472-de88346c34a6/repo/TestBlazor/TestBlazor.csproj]
+/tmp/workspace/7af93053-68d1-4fe7-b472-de88346c34a6/repo/TestBlazor/Program.cs(7,1): error CS0103: The name 'builder' does not exist in the current context [/tmp/workspace/7af93053-68d1-4fe7-b472-de88346c34a6/repo/TestBlazor/TestBlazor.csproj]
+/tmp/workspace/7af93053-68d1-4fe7-b472-de88346c34a6/repo/TestBlazor/Program.cs(9,1): error CS0103: The name 'builder' does not exist in the current context [/tmp/workspace/7af93053-68d1-4fe7-b472-de88346c34a6/repo/TestBlazor/TestBlazor.csproj]
+/tmp/workspace/7af93053-68d1-4fe7-b472-de88346c34a6/repo/TestBlazor/Program.cs(9,73): error CS0103: The name 'builder' does not exist in the current context [/tmp/workspace/7af93053-68d1-4fe7-b472-de88346c34a6/repo/TestBlazor/TestBlazor.csproj]
+/tmp/workspace/7af93053-68d1-4fe7-b472-de88346c34a6/repo/TestBlazor/Program.cs(11,7): error CS0103: The name 'builder' does not exist in the current context [/tmp/workspace/7af93053-68d1-4fe7-b472-de88346c34a6/repo/TestBlazor/TestBlazor.csproj]
+
+Build FAILED.
+
+    0 Warning(s)
+    5 Error(s)
+
+Time Elapsed 00:00:07.25
