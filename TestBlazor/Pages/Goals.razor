@@ -1,0 +1,135 @@
+@page "/goals"
+
+<PageTitle>Goals</PageTitle>
+
+<h1>Goals</h1>
+
+<div class="goals-form">
+    <div class="mb-3">
+        <label for="goalTitle" class="form-label">Goal Title</label>
+        <input type="text"
+               class="form-control"
+               id="goalTitle"
+               @bind="newGoalTitle"
+               @bind:event="oninput"
+               placeholder="Enter your goal" />
+    </div>
+
+    <div class="mb-3">
+        <label for="goalTargetDate" class="form-label">Target Date (optional)</label>
+        <input type="date"
+               class="form-control"
+               id="goalTargetDate"
+               @bind="newGoalTargetDate" />
+    </div>
+
+    @if (!string.IsNullOrEmpty(validationMessage))
+    {
+        <div class="validation-message mb-3">@validationMessage</div>
+    }
+
+    <button class="btn btn-primary" @onclick="AddGoal">Add Goal</button>
+</div>
+
+@if (goals.Any())
+{
+    <div class="goals-list mt-4">
+        <h3>Your Goals</h3>
+        @foreach (var goal in goals)
+        {
+            <div class="goal-item @(goal.IsCompleted ? "goal-completed" : "")">
+                <div class="goal-content">
+                    <div class="goal-header">
+                        <strong>@goal.Title</strong>
+                        @if (goal.TargetDate.HasValue)
+                        {
+                            <span class="goal-date">Target: @goal.TargetDate.Value.ToString("MM/dd/yyyy")</span>
+                        }
+                    </div>
+                </div>
+                <div class="goal-actions">
+                    <button class="btn btn-sm btn-outline-success"
+                            @onclick="() => ToggleGoal(goal.Id)"
+                            title="@(goal.IsCompleted ? "Mark as incomplete" : "Mark as completed")">
+                        @(goal.IsCompleted ? "✓ Completed" : "○ Complete")
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger"
+                            @onclick="() => DeleteGoal(goal.Id)"
+                            title="Delete goal">
+                        Delete
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <p class="mt-4"><em>No goals yet. Add your first goal above!</em></p>
+}
+
+@code {
+    private List<Goal> goals = new List<Goal>();
+    private string newGoalTitle = string.Empty;
+    private DateTime? newGoalTargetDate;
+    private string validationMessage = string.Empty;
+
+    private void AddGoal()
+    {
+        // Trim the input
+        var trimmedTitle = newGoalTitle?.Trim() ?? string.Empty;
+
+        // Validate that title is not empty
+        if (string.IsNullOrWhiteSpace(trimmedTitle))
+        {
+            validationMessage = "Goal title cannot be empty.";
+            return;
+        }
+
+        // Clear validation message
+        validationMessage = string.Empty;
+
+        // Create new goal
+        var newGoal = new Goal
+        {
+            Id = Guid.NewGuid(),
+            Title = trimmedTitle,
+            TargetDate = newGoalTargetDate,
+            IsCompleted = false
+        };
+
+        // Add to list
+        goals.Add(newGoal);
+
+        // Clear form
+        newGoalTitle = string.Empty;
+        newGoalTargetDate = null;
+    }
+
+    private void ToggleGoal(Guid id)
+    {
+        var goal = goals.FirstOrDefault(g => g.Id == id);
+        if (goal != null)
+        {
+            goal.IsCompleted = !goal.IsCompleted;
+        }
+    }
+
+    private void DeleteGoal(Guid id)
+    {
+        var goal = goals.FirstOrDefault(g => g.Id == id);
+        if (goal != null)
+        {
+            goals.Remove(goal);
+        }
+    }
+
+    // Goal model
+    private class Goal
+    {
+        public Guid Id { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public DateTime? TargetDate { get; set; }
+        public bool IsCompleted { get; set; }
+    }
+}
