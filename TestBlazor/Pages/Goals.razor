@@ -14,7 +14,7 @@
         <label for="goalDate">Target Date (optional)</label>
         <input id="goalDate" type="date" class="form-control" @bind="newGoalTargetDate" />
     </div>
-    @if (showValidationMessage)
+    @if (showValidatioessage)
     {
         <div class="alert alert-danger" role="alert">
             Goal title is required
@@ -25,7 +25,7 @@
 
 <div class="goals-list mt-4">
     <h3>Your Goals</h3>
-    @if (!goals.Any())
+    @if (!goa]]ls.Any())
     {
         <p class="text-muted">No goals yet. Add your first goal above!</p>
     }
