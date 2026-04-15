@@ -1,0 +1,159 @@
+@page "/goals"
+
+<PageTitle>Goals</PageTitle>
+
+<h1>Goals</h1>
+
+<p>Track your goals and mark them as complete when you achieve them.</p>
+
+<div class="goal-form">
+    <div class="mb-3">
+        <label for="goalTitle" class="form-label">Goal Title</label>
+        <input type="text" class="form-control" id="goalTitle" @bind="newGoalTitle" placeholder="Enter your goal" />
+    </div>
+    <div class="mb-3">
+        <label for="goalDate" class="form-label">Target Date (Optional)</label>
+        <input type="date" class="form-control" id="goalDate" @bind="newGoalTargetDate" />
+    </div>
+    @if (!string.IsNullOrEmpty(validationMessage))
+    {
+        <div class="alert alert-danger" role="alert">
+            @validationMessage
+        </div>
+    }
+    <button class="btn btn-primary" @onclick="AddGoal">Add Goal</button>
+</div>
+
+@if (goals.Count == 0)
+{
+    <p class="mt-4"><em>No goals yet. Add your first goal above!</em></p>
+}
+else
+{
+    <div class="goals-list mt-4">
+        <h3>Active Goals</h3>
+        @if (goals.Any(g => !g.IsCompleted))
+        {
+            <ul class="list-unstyled">
+                @foreach (var goal in goals.Where(g => !g.IsCompleted))
+                {
+                    <li class="goal-item">
+                        <div class="goal-content">
+                            <div class="goal-header">
+                                <span class="goal-title">@goal.Title</span>
+                                @if (goal.TargetDate.HasValue)
+                                {
+                                    <span class="goal-date badge bg-info">@goal.TargetDate.Value.ToString("MMM dd, yyyy")</span>
+                                }
+                            </div>
+                            <div class="goal-actions">
+                                <button class="btn btn-sm btn-success" @onclick="() => ToggleGoal(goal.Id)">
+                                    <span aria-hidden="true">✓</span> Complete
+                                </button>
+                                <button class="btn btn-sm btn-danger" @onclick="() => DeleteGoal(goal.Id)">
+                                    <span aria-hidden="true">✕</span> Delete
+                                </button>
+                            </div>
+                        </div>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p><em>No active goals.</em></p>
+        }
+
+        @if (goals.Any(g => g.IsCompleted))
+        {
+            <h3 class="mt-4">Completed Goals</h3>
+            <ul class="list-unstyled">
+                @foreach (var goal in goals.Where(g => g.IsCompleted))
+                {
+                    <li class="goal-item completed">
+                        <div class="goal-content">
+                            <div class="goal-header">
+                                <span class="goal-title">@goal.Title</span>
+                                @if (goal.TargetDate.HasValue)
+                                {
+                                    <span class="goal-date badge bg-secondary">@goal.TargetDate.Value.ToString("MMM dd, yyyy")</span>
+                                }
+                            </div>
+                            <div class="goal-actions">
+                                <button class="btn btn-sm btn-outline-secondary" @onclick="() => ToggleGoal(goal.Id)">
+                                    <span aria-hidden="true">↻</span> Reopen
+                                </button>
+                                <button class="btn btn-sm btn-danger" @onclick="() => DeleteGoal(goal.Id)">
+                                    <span aria-hidden="true">✕</span> Delete
+                                </button>
+                            </div>
+                        </div>
+                    </li>
+                }
+            </ul>
+        }
+    </div>
+}
+
+@code {
+    private List<Goal> goals = new List<Goal>();
+    private string newGoalTitle = string.Empty;
+    private DateTime? newGoalTargetDate;
+    private string validationMessage = string.Empty;
+
+    private void AddGoal()
+    {
+        // Clear previous validation message
+        validationMessage = string.Empty;
+
+        // Trim and validate the title
+        var trimmedTitle = newGoalTitle?.Trim() ?? string.Empty;
+
+        if (string.IsNullOrWhiteSpace(trimmedTitle))
+        {
+            validationMessage = "Goal title cannot be empty.";
+            return;
+        }
+
+        // Create and add the new goal
+        var newGoal = new Goal
+        {
+            Id = Guid.NewGuid(),
+            Title = trimmedTitle,
+            TargetDate = newGoalTargetDate,
+            IsCompleted = false
+        };
+
+        goals.Add(newGoal);
+
+        // Reset form
+        newGoalTitle = string.Empty;
+        newGoalTargetDate = null;
+    }
+
+    private void ToggleGoal(Guid id)
+    {
+        var goal = goals.FirstOrDefault(g => g.Id == id);
+        if (goal != null)
+        {
+            goal.IsCompleted = !goal.IsCompleted;
+        }
+    }
+
+    private void DeleteGoal(Guid id)
+    {
+        var goal = goals.FirstOrDefault(g => g.Id == id);
+        if (goal != null)
+        {
+            goals.Remove(goal);
+        }
+    }
+
+    private class Goal
+    {
+        public Guid Id { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public DateTime? TargetDate { get; set; }
+        public bool IsCompleted { get; set; }
+    }
+}
