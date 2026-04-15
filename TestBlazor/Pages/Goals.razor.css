@@ -5,12 +5,7 @@
     margin-bottom: 2rem;
 }
 
-.goal-form h3 {
-    font-size: 1.25rem;
-    margin-bottom: 1rem;
-    color: #333;
-}
-
+.goal-form h3,
 .goals-list h3 {
     font-size: 1.25rem;
     margin-bottom: 1rem;
