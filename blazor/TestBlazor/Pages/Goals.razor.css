@@ -1,0 +1,127 @@
+/* Form styling */
+.goal-form {
+    background-color: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #333;
+}
+
+.form-group input {
+    width: 100%;
+    max-width: 500px;
+}
+
+.goal-form button {
+    margin-top: 0.5rem;
+}
+
+/* Validation message styling */
+.validation-message {
+    color: #dc3545;
+    margin-top: 0.75rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* Goals list styling */
+.goals-list {
+    margin-top: 2rem;
+}
+
+.goals-list h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: #333;
+}
+
+.no-goals {
+    color: #6c757d;
+    font-style: italic;
+    margin-top: 1rem;
+}
+
+/* Goal item styling */
+.goal-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    transition: box-shadow 0.2s;
+}
+
+.goal-item:hover {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.goal-content {
+    flex: 1;
+}
+
+.goal-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.goal-title {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #212529;
+}
+
+.goal-date {
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.goal-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* Completed goal styling */
+.goal-item.completed {
+    opacity: 0.6;
+    background-color: #f8f9fa;
+}
+
+.goal-item.completed .goal-title {
+    text-decoration: line-through;
+    color: #6c757d;
+}
+
+.goal-item.completed .goal-date {
+    text-decoration: line-through;
+}
+
+/* Responsive styling */
+@media (max-width: 576px) {
+    .goal-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .goal-actions {
+        margin-top: 0.75rem;
+        width: 100%;
+    }
+
+    .goal-actions button {
+        flex: 1;
+    }
+}
