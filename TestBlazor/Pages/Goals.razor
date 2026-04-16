@@ -1,0 +1,129 @@
+@page "/goals"
+
+<PageTitle>Goals</PageTitle>
+
+<h1>Goals</h1>
+
+<p>Track your goals and mark them as you complete them.</p>
+
+<div class="goal-form">
+    <h3>Add New Goal</h3>
+    <div class="mb-3">
+        <label for="goalTitle" class="form-label">Title</label>
+        <input type="text" class="form-control" id="goalTitle" @bind="newGoalTitle" placeholder="Enter goal title" />
+        @if (showValidationError)
+        {
+            <div class="text-danger mt-1">
+                <small>Goal title is required.</small>
+            </div>
+        }
+    </div>
+    <div class="mb-3">
+        <label for="goalTargetDate" class="form-label">Target Date (Optional)</label>
+        <input type="date" class="form-control" id="goalTargetDate" @bind="newGoalTargetDate" />
+    </div>
+    <button class="btn btn-primary" @onclick="AddGoal">Add Goal</button>
+</div>
+
+<div class="goal-list">
+    <h3>Your Goals</h3>
+    @if (goals.Count == 0)
+    {
+        <p class="text-muted">No goals yet. Add your first goal above!</p>
+    }
+    else
+    {
+        <div class="goals-container">
+            @foreach (var goal in goals)
+            {
+                <div class="goal-item @(goal.IsCompleted ? "completed-goal" : "")">
+                    <div class="goal-content">
+                        <div class="goal-info">
+                            <h5>@goal.Title</h5>
+                            @if (goal.TargetDate.HasValue)
+                            {
+                                <small class="text-muted">Target: @goal.TargetDate.Value.ToShortDateString()</small>
+                            }
+                        </div>
+                        <div class="goal-actions">
+                            <button class="btn btn-sm btn-success" @onclick="() => ToggleGoal(goal.Id)" title="@(goal.IsCompleted ? "Mark as incomplete" : "Mark as complete")">
+                                @if (goal.IsCompleted)
+                                {
+                                    <span>&#10003; Completed</span>
+                                }
+                                else
+                                {
+                                    <span>&#9675; Complete</span>
+                                }
+                            </button>
+                            <button class="btn btn-sm btn-danger" @onclick="() => DeleteGoal(goal.Id)" title="Delete goal">
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private List<Goal> goals = new List<Goal>();
+    private string newGoalTitle = string.Empty;
+    private DateTime? newGoalTargetDate;
+    private bool showValidationError = false;
+
+    private void AddGoal()
+    {
+        // Trim and validate title
+        var trimmedTitle = newGoalTitle?.Trim() ?? string.Empty;
+
+        if (string.IsNullOrWhiteSpace(trimmedTitle))
+        {
+            showValidationError = true;
+            return;
+        }
+
+        // Create and add new goal
+        var newGoal = new Goal
+        {
+            Id = Guid.NewGuid(),
+            Title = trimmedTitle,
+            TargetDate = newGoalTargetDate,
+            IsCompleted = false
+        };
+
+        goals.Add(newGoal);
+
+        // Reset form
+        newGoalTitle = string.Empty;
+        newGoalTargetDate = null;
+        showValidationError = false;
+    }
+
+    private void ToggleGoal(Guid id)
+    {
+        var goal = goals.FirstOrDefault(g => g.Id == id);
+        if (goal != null)
+        {
+            goal.IsCompleted = !goal.IsCompleted;
+        }
+    }
+
+    private void DeleteGoal(Guid id)
+    {
+        var goal = goals.FirstOrDefault(g => g.Id == id);
+        if (goal != null)
+        {
+            goals.Remove(goal);
+        }
+    }
+
+    private class Goal
+    {
+        public Guid Id { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public DateTime? TargetDate { get; set; }
+        public bool IsCompleted { get; set; }
+    }
+}
