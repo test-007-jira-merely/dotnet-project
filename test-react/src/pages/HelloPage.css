@@ -1,0 +1,58 @@
+.hello-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1;
+  padding: 64px 32px;
+  text-align: center;
+
+  @media (max-width: 1024px) {
+    padding: 48px 20px;
+  }
+}
+
+.hello-content {
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  align-items: center;
+}
+
+.welcome-message {
+  font-size: 18px;
+  line-height: 160%;
+  color: var(--text);
+
+  @media (max-width: 1024px) {
+    font-size: 16px;
+  }
+}
+
+.cta-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  padding: 12px 24px;
+  border-radius: 6px;
+  color: var(--bg);
+  background: var(--accent);
+  border: 2px solid var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s;
+  margin-top: 16px;
+
+  &:hover {
+    background: var(--accent-border);
+    border-color: var(--accent-border);
+    box-shadow: var(--shadow);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+}
