@@ -3,15 +3,25 @@ import HomePage from './pages/HomePage'
 import HelloPage from './pages/HelloPage'
 import './App.css'
 
+const getLinkClass = ({ isActive }: { isActive: boolean }) =>
+  isActive ? 'nav-link active' : 'nav-link'
+
 function App() {
   return (
     <BrowserRouter>
       <div className="app-shell">
-        <nav className="app-nav">
-          <NavLink to="/" end className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
+        <nav className="app-nav" aria-label="Main navigation">
+          <NavLink
+            to="/"
+            end
+            className={getLinkClass}
+          >
             Home
           </NavLink>
-          <NavLink to="/hello" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
+          <NavLink
+            to="/hello"
+            className={getLinkClass}
+          >
             Hello
           </NavLink>
         </nav>
