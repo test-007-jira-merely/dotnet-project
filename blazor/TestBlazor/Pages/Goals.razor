@@ -98,7 +98,7 @@
 @code {
     private List<GoalItem> goals = new();
     private string goalTitle = string.Empty;
-    private string targetDate = string.Empty;
+    private DateTime? targetDate;
     private string? validationMessage;
 
     private void AddGoal()
@@ -115,19 +115,12 @@
             return;
         }
 
-        // Parse the target date if provided
-        DateTime? parsedDate = null;
-        if (!string.IsNullOrWhiteSpace(targetDate) && DateTime.TryParse(targetDate, out var dateValue))
-        {
-            parsedDate = dateValue;
-        }
-
         // Create and add the new goal
         var newGoal = new GoalItem
         {
             Id = Guid.NewGuid(),
             Title = trimmedTitle,
-            TargetDate = parsedDate,
+            TargetDate = targetDate,
             IsCompleted = false
         };
 
@@ -135,7 +128,7 @@
 
         // Clear the form inputs
         goalTitle = string.Empty;
-        targetDate = string.Empty;
+        targetDate = null;
     }
 
     private void ToggleGoal(Guid id)
