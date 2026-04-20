@@ -36,59 +36,19 @@
     {
         <h3>Active Goals</h3>
         <ul class="list-group mb-4">
-            @foreach (var goal in goals.Where(g => !g.IsCompleted))
+            @foreach (var goal in ActiveGoals)
             {
-                <li class="list-group-item">
-                    <div class="goal-item">
-                        <div class="goal-content">
-                            <strong>@goal.Title</strong>
-                            @if (goal.TargetDate.HasValue)
-                            {
-                                <span class="text-muted ms-2">
-                                    <small>(Target: @goal.TargetDate.Value.ToShortDateString())</small>
-                                </span>
-                            }
-                        </div>
-                        <div class="goal-actions">
-                            <button class="btn btn-sm btn-success" @onclick="() => ToggleGoal(goal.Id)">
-                                Complete
-                            </button>
-                            <button class="btn btn-sm btn-danger" @onclick="() => DeleteGoal(goal.Id)">
-                                Delete
-                            </button>
-                        </div>
-                    </div>
-                </li>
+                @RenderGoalItem(goal, "Complete", "btn-success")
             }
         </ul>
 
-        @if (goals.Any(g => g.IsCompleted))
+        @if (CompletedGoals.Any())
         {
             <h3>Completed Goals</h3>
             <ul class="list-group">
-                @foreach (var goal in goals.Where(g => g.IsCompleted))
+                @foreach (var goal in CompletedGoals)
                 {
-                    <li class="list-group-item completed">
-                        <div class="goal-item">
-                            <div class="goal-content">
-                                <strong>@goal.Title</strong>
-                                @if (goal.TargetDate.HasValue)
-                                {
-                                    <span class="text-muted ms-2">
-                                        <small>(Target: @goal.TargetDate.Value.ToShortDateString())</small>
-                                    </span>
-                                }
-                            </div>
-                            <div class="goal-actions">
-                                <button class="btn btn-sm btn-warning" @onclick="() => ToggleGoal(goal.Id)">
-                                    Reactivate
-                                </button>
-                                <button class="btn btn-sm btn-danger" @onclick="() => DeleteGoal(goal.Id)">
-                                    Delete
-                                </button>
-                            </div>
-                        </div>
-                    </li>
+                    @RenderGoalItem(goal, "Reactivate", "btn-warning", isCompleted: true)
                 }
             </ul>
         }
@@ -100,6 +60,60 @@
     private string goalTitle = string.Empty;
     private DateTime? targetDate;
     private string? validationMessage;
+
+    // Cached filtered lists to avoid repeated LINQ queries during render
+    private IEnumerable<GoalItem> ActiveGoals => goals.Where(g => !g.IsCompleted);
+    private IEnumerable<GoalItem> CompletedGoals => goals.Where(g => g.IsCompleted);
+
+    // Reusable goal rendering method to follow DRY principle
+    private RenderFragment RenderGoalItem(GoalItem goal, string actionLabel, string actionButtonClass, bool isCompleted = false) => builder =>
+    {
+        builder.OpenElement(0, "li");
+        builder.AddAttribute(1, "class", isCompleted ? "list-group-item completed" : "list-group-item");
+
+        builder.OpenElement(2, "div");
+        builder.AddAttribute(3, "class", "goal-item");
+
+        // Goal content
+        builder.OpenElement(4, "div");
+        builder.AddAttribute(5, "class", "goal-content");
+
+        builder.OpenElement(6, "strong");
+        builder.AddContent(7, goal.Title);
+        builder.CloseElement();
+
+        if (goal.TargetDate.HasValue)
+        {
+            builder.OpenElement(8, "span");
+            builder.AddAttribute(9, "class", "text-muted ms-2");
+            builder.OpenElement(10, "small");
+            builder.AddContent(11, $"(Target: {goal.TargetDate.Value.ToShortDateString()})");
+            builder.CloseElement();
+            builder.CloseElement();
+        }
+
+        builder.CloseElement(); // goal-content
+
+        // Goal actions
+        builder.OpenElement(12, "div");
+        builder.AddAttribute(13, "class", "goal-actions");
+
+        builder.OpenElement(14, "button");
+        builder.AddAttribute(15, "class", $"btn btn-sm {actionButtonClass}");
+        builder.AddAttribute(16, "onclick", EventCallback.Factory.Create(this, () => ToggleGoal(goal.Id)));
+        builder.AddContent(17, actionLabel);
+        builder.CloseElement();
+
+        builder.OpenElement(18, "button");
+        builder.AddAttribute(19, "class", "btn btn-sm btn-danger");
+        builder.AddAttribute(20, "onclick", EventCallback.Factory.Create(this, () => DeleteGoal(goal.Id)));
+        builder.AddContent(21, "Delete");
+        builder.CloseElement();
+
+        builder.CloseElement(); // goal-actions
+        builder.CloseElement(); // goal-item
+        builder.CloseElement(); // li
+    };
 
     private void AddGoal()
     {
