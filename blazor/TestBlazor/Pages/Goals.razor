@@ -1,4 +1,5 @@
 @page "/goals"
+@inject IJSRuntime JSRuntime
 
 <PageTitle>Goals</PageTitle>
 
@@ -8,8 +9,8 @@
 
 <div class="goal-form">
     <div class="form-group mb-3">
-        <label for="goalTitle" class="form-label">Goal Title</label>
-        <input id="goalTitle" class="form-control" @bind="goalTitle" placeholder="Enter your goal" />
+        <label for="goalTitle" class="form-label">Goal Title (Max 200 characters)</label>
+        <input id="goalTitle" class="form-control" @bind="goalTitle" placeholder="Enter your goal" maxlength="200" />
     </div>
 
     <div class="form-group mb-3">
@@ -36,19 +37,29 @@
     {
         <h3>Active Goals</h3>
         <ul class="list-group mb-4">
-            @foreach (var goal in ActiveGoals)
+            @foreach (var goal in activeGoals)
             {
-                @RenderGoalItem(goal, "Complete", "btn-success")
+                <GoalItemComponent Goal="goal"
+                                   ActionLabel="Complete"
+                                   ActionButtonClass="btn-success"
+                                   IsCompleted="false"
+                                   OnToggleGoal="HandleToggleGoal"
+                                   OnDeleteGoal="HandleDeleteGoal" />
             }
         </ul>
 
-        @if (CompletedGoals.Any())
+        @if (completedGoals.Count > 0)
         {
             <h3>Completed Goals</h3>
             <ul class="list-group">
-                @foreach (var goal in CompletedGoals)
+                @foreach (var goal in completedGoals)
                 {
-                    @RenderGoalItem(goal, "Reactivate", "btn-warning", isCompleted: true)
+                    <GoalItemComponent Goal="goal"
+                                       ActionLabel="Reactivate"
+                                       ActionButtonClass="btn-warning"
+                                       IsCompleted="true"
+                                       OnToggleGoal="HandleToggleGoal"
+                                       OnDeleteGoal="HandleDeleteGoal" />
                 }
             </ul>
         }
@@ -56,66 +67,59 @@
 </div>
 
 @code {
+    private const string StorageKey = "goalsData";
+    private const int MaxTitleLength = 200;
+
     private List<GoalItem> goals = new();
+    private List<GoalItem> activeGoals = new();
+    private List<GoalItem> completedGoals = new();
     private string goalTitle = string.Empty;
     private DateTime? targetDate;
     private string? validationMessage;
 
-    // Cached filtered lists to avoid repeated LINQ queries during render
-    private IEnumerable<GoalItem> ActiveGoals => goals.Where(g => !g.IsCompleted);
-    private IEnumerable<GoalItem> CompletedGoals => goals.Where(g => g.IsCompleted);
-
-    // Reusable goal rendering method to follow DRY principle
-    private RenderFragment RenderGoalItem(GoalItem goal, string actionLabel, string actionButtonClass, bool isCompleted = false) => builder =>
+    protected override async Task OnInitializedAsync()
     {
-        builder.OpenElement(0, "li");
-        builder.AddAttribute(1, "class", isCompleted ? "list-group-item completed" : "list-group-item");
+        await LoadGoalsFromStorage();
+    }
 
-        builder.OpenElement(2, "div");
-        builder.AddAttribute(3, "class", "goal-item");
-
-        // Goal content
-        builder.OpenElement(4, "div");
-        builder.AddAttribute(5, "class", "goal-content");
-
-        builder.OpenElement(6, "strong");
-        builder.AddContent(7, goal.Title);
-        builder.CloseElement();
-
-        if (goal.TargetDate.HasValue)
+    private async Task LoadGoalsFromStorage()
+    {
+        try
         {
-            builder.OpenElement(8, "span");
-            builder.AddAttribute(9, "class", "text-muted ms-2");
-            builder.OpenElement(10, "small");
-            builder.AddContent(11, $"(Target: {goal.TargetDate.Value.ToShortDateString()})");
-            builder.CloseElement();
-            builder.CloseElement();
+            var json = await JSRuntime.InvokeAsync<string>("localStorage.getItem", StorageKey);
+            if (!string.IsNullOrEmpty(json))
+            {
+                goals = System.Text.Json.JsonSerializer.Deserialize<List<GoalItem>>(json) ?? new();
+                UpdateCachedLists();
+            }
         }
+        catch
+        {
+            // If localStorage fails, continue with empty list
+            goals = new();
+        }
+    }
 
-        builder.CloseElement(); // goal-content
+    private async Task SaveGoalsToStorage()
+    {
+        try
+        {
+            var json = System.Text.Json.JsonSerializer.Serialize(goals);
+            await JSRuntime.InvokeVoidAsync("localStorage.setItem", StorageKey, json);
+        }
+        catch
+        {
+            // Silently handle storage errors
+        }
+    }
 
-        // Goal actions
-        builder.OpenElement(12, "div");
-        builder.AddAttribute(13, "class", "goal-actions");
+    private void UpdateCachedLists()
+    {
+        activeGoals = goals.Where(g => !g.IsCompleted).ToList();
+        completedGoals = goals.Where(g => g.IsCompleted).ToList();
+    }
 
-        builder.OpenElement(14, "button");
-        builder.AddAttribute(15, "class", $"btn btn-sm {actionButtonClass}");
-        builder.AddAttribute(16, "onclick", EventCallback.Factory.Create(this, () => ToggleGoal(goal.Id)));
-        builder.AddContent(17, actionLabel);
-        builder.CloseElement();
-
-        builder.OpenElement(18, "button");
-        builder.AddAttribute(19, "class", "btn btn-sm btn-danger");
-        builder.AddAttribute(20, "onclick", EventCallback.Factory.Create(this, () => DeleteGoal(goal.Id)));
-        builder.AddContent(21, "Delete");
-        builder.CloseElement();
-
-        builder.CloseElement(); // goal-actions
-        builder.CloseElement(); // goal-item
-        builder.CloseElement(); // li
-    };
-
-    private void AddGoal()
+    private async Task AddGoal()
     {
         // Clear previous validation message
         validationMessage = null;
@@ -129,6 +133,13 @@
             return;
         }
 
+        // Validate length (sanitization)
+        if (trimmedTitle.Length > MaxTitleLength)
+        {
+            validationMessage = $"Goal title cannot exceed {MaxTitleLength} characters.";
+            return;
+        }
+
         // Create and add the new goal
         var newGoal = new GoalItem
         {
@@ -139,28 +150,40 @@
         };
 
         goals.Add(newGoal);
+        UpdateCachedLists();
+        await SaveGoalsToStorage();
 
         // Clear the form inputs
         goalTitle = string.Empty;
         targetDate = null;
     }
 
-    private void ToggleGoal(Guid id)
+    private async Task HandleToggleGoal(Guid id)
     {
-        var goal = goals.FirstOrDefault(g => g.Id == id);
+        var goal = FindGoal(id);
         if (goal != null)
         {
             goal.IsCompleted = !goal.IsCompleted;
+            UpdateCachedLists();
+            await SaveGoalsToStorage();
         }
     }
 
-    private void DeleteGoal(Guid id)
+    private async Task HandleDeleteGoal(Guid id)
     {
-        var goal = goals.FirstOrDefault(g => g.Id == id);
+        var goal = FindGoal(id);
         if (goal != null)
         {
             goals.Remove(goal);
+            UpdateCachedLists();
+            await SaveGoalsToStorage();
         }
+    }
+
+    // Extract duplicate goal-finding logic (DRY principle)
+    private GoalItem? FindGoal(Guid id)
+    {
+        return goals.FirstOrDefault(g => g.Id == id);
     }
 
     public class GoalItem

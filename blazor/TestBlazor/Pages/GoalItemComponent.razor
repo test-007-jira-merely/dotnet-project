@@ -1,0 +1,61 @@
+@* Component for rendering individual goal items *@
+<li class="@(IsCompleted ? "list-group-item completed" : "list-group-item")">
+    <div class="goal-item">
+        <div class="goal-content">
+            <strong>@Goal.Title</strong>
+            @if (Goal.TargetDate.HasValue)
+            {
+                <span class="text-muted ms-2">
+                    <small>(Target: @Goal.TargetDate.Value.ToShortDateString())</small>
+                </span>
+            }
+        </div>
+        <div class="goal-actions">
+            <button class="btn btn-sm @ActionButtonClass" @onclick="OnToggle">
+                @ActionLabel
+            </button>
+            <button class="btn btn-sm btn-danger" @onclick="OnDelete">
+                Delete
+            </button>
+        </div>
+    </div>
+</li>
+
+@code {
+    [Parameter]
+    public GoalItem Goal { get; set; } = null!;
+
+    [Parameter]
+    public string ActionLabel { get; set; } = "Complete";
+
+    [Parameter]
+    public string ActionButtonClass { get; set; } = "btn-success";
+
+    [Parameter]
+    public bool IsCompleted { get; set; }
+
+    [Parameter]
+    public EventCallback<Guid> OnToggleGoal { get; set; }
+
+    [Parameter]
+    public EventCallback<Guid> OnDeleteGoal { get; set; }
+
+    private async Task OnToggle()
+    {
+        await OnToggleGoal.InvokeAsync(Goal.Id);
+    }
+
+    private async Task OnDelete()
+    {
+        await OnDeleteGoal.InvokeAsync(Goal.Id);
+    }
+
+    // Using GoalItem class from Goals component
+    public class GoalItem
+    {
+        public Guid Id { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public DateTime? TargetDate { get; set; }
+        public bool IsCompleted { get; set; }
+    }
+}
