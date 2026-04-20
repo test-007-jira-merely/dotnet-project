@@ -1,0 +1,116 @@
+@page "/goals"
+
+<PageTitle>Goals</PageTitle>
+
+<h1>Goals</h1>
+
+<div class="goals-container">
+    <div class="goal-form">
+        <h3>Add a New Goal</h3>
+        <div class="form-group mb-3">
+            <label for="goalTitle">Goal Title</label>
+            <input type="text" id="goalTitle" class="form-control" @bind="newTitle" placeholder="Enter your goal" />
+        </div>
+        <div class="form-group mb-3">
+            <label for="goalTargetDate">Target Date (Optional)</label>
+            <input type="date" id="goalTargetDate" class="form-control" @bind="newTargetDate" />
+        </div>
+        @if (!string.IsNullOrEmpty(validationMessage))
+        {
+            <div class="validation-message">@validationMessage</div>
+        }
+        <button class="btn btn-primary" @onclick="AddGoal">Add Goal</button>
+    </div>
+
+    <div class="goals-list">
+        <h3>Your Goals</h3>
+        @if (goals.Count == 0)
+        {
+            <p class="no-goals">No goals yet. Add one above to get started!</p>
+        }
+        else
+        {
+            <div class="goal-items">
+                @foreach (var goal in goals)
+                {
+                    <div class="goal-item @(goal.IsCompleted ? "completed" : "")" @key="goal.Id">
+                        <div class="goal-content">
+                            <div class="goal-title">@goal.Title</div>
+                            @if (goal.TargetDate.HasValue)
+                            {
+                                <div class="goal-date">Target: @goal.TargetDate.Value.ToShortDateString()</div>
+                            }
+                        </div>
+                        <div class="goal-actions">
+                            <button class="btn btn-sm @(goal.IsCompleted ? "btn-secondary" : "btn-success")" @onclick="() => ToggleGoal(goal.Id)">
+                                @(goal.IsCompleted ? "Undo" : "Complete")
+                            </button>
+                            <button class="btn btn-sm btn-danger" @onclick="() => DeleteGoal(goal.Id)">Delete</button>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private List<Goal> goals = new List<Goal>();
+    private string newTitle = string.Empty;
+    private DateTime? newTargetDate = null;
+    private string validationMessage = string.Empty;
+
+    private void AddGoal()
+    {
+        // Clear previous validation message
+        validationMessage = string.Empty;
+
+        // Trim and validate the title
+        var trimmedTitle = newTitle?.Trim() ?? string.Empty;
+
+        if (string.IsNullOrEmpty(trimmedTitle))
+        {
+            validationMessage = "Goal title cannot be empty.";
+            return;
+        }
+
+        // Add the new goal
+        goals.Add(new Goal
+        {
+            Id = Guid.NewGuid(),
+            Title = trimmedTitle,
+            TargetDate = newTargetDate,
+            IsCompleted = false
+        });
+
+        // Clear the form
+        newTitle = string.Empty;
+        newTargetDate = null;
+    }
+
+    private void ToggleGoal(Guid id)
+    {
+        var goal = goals.FirstOrDefault(g => g.Id == id);
+        if (goal != null)
+        {
+            goal.IsCompleted = !goal.IsCompleted;
+        }
+    }
+
+    private void DeleteGoal(Guid id)
+    {
+        var goal = goals.FirstOrDefault(g => g.Id == id);
+        if (goal != null)
+        {
+            goals.Remove(goal);
+        }
+    }
+
+    private class Goal
+    {
+        public Guid Id { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public DateTime? TargetDate { get; set; }
+        public bool IsCompleted { get; set; }
+    }
+}
