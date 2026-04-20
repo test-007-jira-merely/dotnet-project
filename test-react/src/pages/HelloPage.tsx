@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 import './HelloPage.css'
 
 function HelloPage() {
@@ -11,9 +11,9 @@ function HelloPage() {
           in our React application. You can navigate between pages without a full
           page reload, creating a smooth single-page application experience.
         </p>
-        <Link to="/" className="back-button">
+        <NavLink to="/" className="back-button">
           Back to Home
-        </Link>
+        </NavLink>
       </div>
     </section>
   )

@@ -41,7 +41,7 @@ function HomePage() {
           <ul>
             <li>
               <a href="https://vite.dev/" target="_blank" rel="noopener noreferrer">
-                <img className="logo" src={viteLogo} alt="" />
+                <img className="logo" src={viteLogo} alt="Vite and React logos" />
                 Explore Vite
               </a>
             </li>
