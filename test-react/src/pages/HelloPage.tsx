@@ -1,6 +1,13 @@
 import { NavLink } from 'react-router-dom'
 import './HelloPage.css'
 
+/**
+ * HelloPage component - A secondary page demonstrating client-side routing.
+ *
+ * Displays a welcome message and provides navigation back to the home page.
+ * This page is rendered at the "/hello" route and demonstrates smooth
+ * single-page application navigation without full page reloads.
+ */
 function HelloPage() {
   return (
     <section className="hello-page">

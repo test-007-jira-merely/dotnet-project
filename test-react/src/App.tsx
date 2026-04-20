@@ -1,4 +1,3 @@
-import { useCallback } from 'react'
 import { Routes, Route, NavLink } from 'react-router-dom'
 import HomePage from './pages/HomePage'
 import HelloPage from './pages/HelloPage'
@@ -6,11 +5,8 @@ import NotFoundPage from './pages/NotFoundPage'
 import './App.css'
 
 function App() {
-  const getNavLinkClassName = useCallback(
-    ({ isActive }: { isActive: boolean }) =>
-      isActive ? 'nav-link active' : 'nav-link',
-    []
-  )
+  const getNavLinkClassName = ({ isActive }: { isActive: boolean }) =>
+    isActive ? 'nav-link active' : 'nav-link'
   return (
     <div className="app">
       <nav className="main-nav">

@@ -2,8 +2,16 @@ import { useState } from 'react'
 import reactLogo from '../assets/react.svg'
 import viteLogo from '../assets/vite.svg'
 import heroImg from '../assets/hero.png'
+import ExternalLink from '../components/ExternalLink'
 import './HomePage.css'
 
+/**
+ * HomePage component - The main landing page of the application.
+ *
+ * Displays the hero section with Vite and React logos, a counter demonstration,
+ * and links to documentation and community resources. This page is rendered
+ * at the root route ("/") in the application's routing structure.
+ */
 function HomePage() {
   const [count, setCount] = useState(0)
 
@@ -40,16 +48,16 @@ function HomePage() {
           <p>Your questions, answered</p>
           <ul>
             <li>
-              <a href="https://vite.dev/" target="_blank" rel="noopener noreferrer">
+              <ExternalLink href="https://vite.dev/">
                 <img className="logo" src={viteLogo} alt="Vite and React logos" />
                 Explore Vite
-              </a>
+              </ExternalLink>
             </li>
             <li>
-              <a href="https://react.dev/" target="_blank" rel="noopener noreferrer">
-                <img className="button-icon" src={reactLogo} alt="" />
+              <ExternalLink href="https://react.dev/">
+                <img className="button-icon" src={reactLogo} alt="" aria-hidden="true" />
                 Learn more
-              </a>
+              </ExternalLink>
             </li>
           </ul>
         </div>
@@ -61,7 +69,7 @@ function HomePage() {
           <p>Join the Vite community</p>
           <ul>
             <li>
-              <a href="https://github.com/vitejs/vite" target="_blank" rel="noopener noreferrer">
+              <ExternalLink href="https://github.com/vitejs/vite">
                 <svg
                   className="button-icon"
                   role="presentation"
@@ -70,10 +78,10 @@ function HomePage() {
                   <use href="/icons.svg#github-icon"></use>
                 </svg>
                 GitHub
-              </a>
+              </ExternalLink>
             </li>
             <li>
-              <a href="https://chat.vite.dev/" target="_blank" rel="noopener noreferrer">
+              <ExternalLink href="https://chat.vite.dev/">
                 <svg
                   className="button-icon"
                   role="presentation"
@@ -82,10 +90,10 @@ function HomePage() {
                   <use href="/icons.svg#discord-icon"></use>
                 </svg>
                 Discord
-              </a>
+              </ExternalLink>
             </li>
             <li>
-              <a href="https://x.com/vite_js" target="_blank" rel="noopener noreferrer">
+              <ExternalLink href="https://x.com/vite_js">
                 <svg
                   className="button-icon"
                   role="presentation"
@@ -94,10 +102,10 @@ function HomePage() {
                   <use href="/icons.svg#x-icon"></use>
                 </svg>
                 X.com
-              </a>
+              </ExternalLink>
             </li>
             <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank" rel="noopener noreferrer">
+              <ExternalLink href="https://bsky.app/profile/vite.dev">
                 <svg
                   className="button-icon"
                   role="presentation"
@@ -106,7 +114,7 @@ function HomePage() {
                   <use href="/icons.svg#bluesky-icon"></use>
                 </svg>
                 Bluesky
-              </a>
+              </ExternalLink>
             </li>
           </ul>
         </div>
