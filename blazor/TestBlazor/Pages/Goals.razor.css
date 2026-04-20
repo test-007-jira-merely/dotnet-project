@@ -1,0 +1,67 @@
+.goal-form {
+    max-width: 600px;
+    padding: 1.5rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+}
+
+.goal-form .form-label {
+    font-weight: 600;
+    color: #495057;
+}
+
+.goals-list {
+    max-width: 800px;
+}
+
+.goals-list h3 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+    color: #495057;
+}
+
+.goal-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.goal-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.goal-content strong {
+    display: inline-block;
+    word-break: break-word;
+}
+
+.goal-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.list-group-item.completed {
+    opacity: 0.6;
+    background-color: #e9ecef;
+}
+
+.list-group-item.completed .goal-content strong {
+    text-decoration: line-through;
+    color: #6c757d;
+}
+
+@media (max-width: 640px) {
+    .goal-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .goal-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}
