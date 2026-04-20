@@ -41,7 +41,7 @@ function HomePage() {
 
       <section id="next-steps">
         <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
+          <svg className="icon" role="presentation" aria-hidden="true" aria-label="Documentation icon">
             <use href="/icons.svg#documentation-icon"></use>
           </svg>
           <h2>Documentation</h2>
@@ -62,7 +62,7 @@ function HomePage() {
           </ul>
         </div>
         <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
+          <svg className="icon" role="presentation" aria-hidden="true" aria-label="Social media icon">
             <use href="/icons.svg#social-icon"></use>
           </svg>
           <h2>Connect with us</h2>
@@ -74,6 +74,7 @@ function HomePage() {
                   className="button-icon"
                   role="presentation"
                   aria-hidden="true"
+                  aria-label="GitHub icon"
                 >
                   <use href="/icons.svg#github-icon"></use>
                 </svg>
@@ -86,6 +87,7 @@ function HomePage() {
                   className="button-icon"
                   role="presentation"
                   aria-hidden="true"
+                  aria-label="Discord icon"
                 >
                   <use href="/icons.svg#discord-icon"></use>
                 </svg>
@@ -98,6 +100,7 @@ function HomePage() {
                   className="button-icon"
                   role="presentation"
                   aria-hidden="true"
+                  aria-label="X icon"
                 >
                   <use href="/icons.svg#x-icon"></use>
                 </svg>
@@ -110,6 +113,7 @@ function HomePage() {
                   className="button-icon"
                   role="presentation"
                   aria-hidden="true"
+                  aria-label="Bluesky icon"
                 >
                   <use href="/icons.svg#bluesky-icon"></use>
                 </svg>

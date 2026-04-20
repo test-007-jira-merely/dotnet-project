@@ -4,9 +4,10 @@ import HelloPage from './pages/HelloPage'
 import NotFoundPage from './pages/NotFoundPage'
 import './App.css'
 
+const getNavLinkClassName = ({ isActive }: { isActive: boolean }) =>
+  isActive ? 'nav-link active' : 'nav-link'
+
 function App() {
-  const getNavLinkClassName = ({ isActive }: { isActive: boolean }) =>
-    isActive ? 'nav-link active' : 'nav-link'
   return (
     <div className="app">
       <nav className="main-nav">

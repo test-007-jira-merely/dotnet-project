@@ -99,7 +99,7 @@ describe('HomePage', () => {
     )
 
     const decorativeImages = screen.getAllByRole('img', { hidden: true })
-    const buttonIcon = decorativeImages.find(img =>
+    const buttonIcon = decorativeImages.find((img: HTMLElement) =>
       img.classList.contains('button-icon') && img.getAttribute('src')?.includes('react')
     )
 
