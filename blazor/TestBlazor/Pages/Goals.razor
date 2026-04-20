@@ -97,14 +97,11 @@
             return;
         }
 
-        // Sanitize title to prevent XSS attacks
-        var sanitizedTitle = HtmlEncoder.Default.Encode(trimmedTitle);
-
-        // Create new goal
+        // Create new goal (encoding happens at display time, not storage time)
         var newGoal = new GoalItem
         {
             Id = Guid.NewGuid(),
-            Title = sanitizedTitle,
+            Title = trimmedTitle,
             TargetDate = newTargetDate,
             IsCompleted = false
         };
@@ -159,9 +156,11 @@
             var json = JsonSerializer.Serialize(goals);
             await JSRuntime.InvokeVoidAsync("localStorage.setItem", LocalStorageKey, json);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            // Silently fail if localStorage is not available
+            // Log localStorage failures for debugging (private browsing, quota exceeded, etc.)
+            System.Diagnostics.Debug.WriteLine($"localStorage save error: {ex.Message}");
+            Console.Error.WriteLine($"Failed to save goals to localStorage: {ex.Message}");
         }
     }
 
@@ -175,9 +174,11 @@
                 goals = JsonSerializer.Deserialize<List<GoalItem>>(json) ?? new List<GoalItem>();
             }
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            // Silently fail if localStorage is not available or data is corrupted
+            // Log localStorage failures for debugging (private browsing, quota exceeded, corrupted data, etc.)
+            System.Diagnostics.Debug.WriteLine($"localStorage load error: {ex.Message}");
+            Console.Error.WriteLine($"Failed to load goals from localStorage: {ex.Message}");
             goals = new List<GoalItem>();
         }
     }
