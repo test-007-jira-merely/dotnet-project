@@ -1,4 +1,5 @@
 @page "/goals"
+@inject IJSRuntime JSRuntime
 
 <PageTitle>Goals</PageTitle>
 
@@ -7,7 +8,7 @@
 <div class="goals-form">
     <div class="mb-3">
         <label for="goalTitle" class="form-label">Goal Title</label>
-        <input type="text" class="form-control" id="goalTitle" @bind="currentTitle" placeholder="Enter your goal" />
+        <input type="text" class="form-control" id="goalTitle" @bind="currentTitle" placeholder="Enter your goal" maxlength="200" />
     </div>
 
     <div class="mb-3">
@@ -19,6 +20,13 @@
     {
         <div class="alert alert-warning" role="alert">
             @validationMessage
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(successMessage))
+    {
+        <div class="alert alert-success" role="alert">
+            @successMessage
         </div>
     }
 
@@ -46,7 +54,9 @@
                             }
                         </div>
                         <div class="goal-actions">
-                            <button class="btn btn-sm btn-outline-success" @onclick="() => ToggleGoal(goal.Id)">
+                            <button class="btn btn-sm btn-outline-success"
+                                    @onclick="() => ToggleGoal(goal.Id)"
+                                    aria-label="@(goal.IsCompleted ? "Mark goal as incomplete" : "Mark goal as complete")">
                                 @(goal.IsCompleted ? "Undo" : "Complete")
                             </button>
                             <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteGoal(goal.Id)">Delete</button>
@@ -59,12 +69,51 @@
 </div>
 
 @code {
+    private const string StorageKey = "goals-data";
+    private const int MaxTitleLength = 200;
+
     private List<GoalItem> goals = new List<GoalItem>();
     private string currentTitle = string.Empty;
     private DateTime? currentTargetDate;
     private string? validationMessage;
+    private string? successMessage;
 
-    private void AddGoal()
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadGoalsAsync();
+    }
+
+    private async Task LoadGoalsAsync()
+    {
+        try
+        {
+            var json = await JSRuntime.InvokeAsync<string>("localStorage.getItem", StorageKey);
+            if (!string.IsNullOrEmpty(json))
+            {
+                goals = System.Text.Json.JsonSerializer.Deserialize<List<GoalItem>>(json) ?? new List<GoalItem>();
+            }
+        }
+        catch
+        {
+            // If loading fails, start with empty list
+            goals = new List<GoalItem>();
+        }
+    }
+
+    private async Task SaveGoalsAsync()
+    {
+        try
+        {
+            var json = System.Text.Json.JsonSerializer.Serialize(goals);
+            await JSRuntime.InvokeVoidAsync("localStorage.setItem", StorageKey, json);
+        }
+        catch
+        {
+            // Silently fail - data will still work in current session
+        }
+    }
+
+    private async Task AddGoal()
     {
         // Trim and validate the title
         var trimmedTitle = currentTitle?.Trim() ?? string.Empty;
@@ -72,6 +121,14 @@
         if (string.IsNullOrEmpty(trimmedTitle))
         {
             validationMessage = "Please enter a goal title.";
+            successMessage = null;
+            return;
+        }
+
+        if (trimmedTitle.Length > MaxTitleLength)
+        {
+            validationMessage = $"Goal title must be {MaxTitleLength} characters or less.";
+            successMessage = null;
             return;
         }
 
@@ -85,29 +142,46 @@
         };
 
         goals.Add(newGoal);
+        await SaveGoalsAsync();
 
-        // Clear the form
+        // Clear the form and show success message
         currentTitle = string.Empty;
         currentTargetDate = null;
         validationMessage = null;
+        successMessage = "Goal added successfully!";
+
+        // Clear success message after a delay
+        _ = Task.Run(async () =>
+        {
+            await Task.Delay(3000);
+            successMessage = null;
+            await InvokeAsync(StateHasChanged);
+        });
     }
 
-    private void ToggleGoal(Guid id)
+    private async Task ToggleGoal(Guid id)
     {
-        var goal = goals.FirstOrDefault(g => g.Id == id);
+        var goal = GetGoal(id);
         if (goal != null)
         {
             goal.IsCompleted = !goal.IsCompleted;
+            await SaveGoalsAsync();
         }
     }
 
-    private void DeleteGoal(Guid id)
+    private async Task DeleteGoal(Guid id)
     {
-        var goal = goals.FirstOrDefault(g => g.Id == id);
+        var goal = GetGoal(id);
         if (goal != null)
         {
             goals.Remove(goal);
+            await SaveGoalsAsync();
         }
+    }
+
+    private GoalItem? GetGoal(Guid id)
+    {
+        return goals.FirstOrDefault(g => g.Id == id);
     }
 
     private class GoalItem
