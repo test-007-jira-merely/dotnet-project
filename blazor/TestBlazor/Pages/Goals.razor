@@ -30,7 +30,7 @@
         </div>
     }
 
-    <button class="btn btn-primary" @onclick="AddGoal">Add Goal</button>
+    <button class="btn btn-primary" @onclick="AddGoal" disabled="@isLoading">Add Goal</button>
 </div>
 
 <div class="goals-list mt-4">
@@ -56,10 +56,11 @@
                         <div class="goal-actions">
                             <button class="btn btn-sm btn-outline-success"
                                     @onclick="() => ToggleGoal(goal.Id)"
+                                    disabled="@isLoading"
                                     aria-label="@(goal.IsCompleted ? "Mark goal as incomplete" : "Mark goal as complete")">
                                 @(goal.IsCompleted ? "Undo" : "Complete")
                             </button>
-                            <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteGoal(goal.Id)">Delete</button>
+                            <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteGoal(goal.Id)" disabled="@isLoading">Delete</button>
                         </div>
                     </div>
                 </li>
@@ -77,6 +78,7 @@
     private DateTime? currentTargetDate;
     private string? validationMessage;
     private string? successMessage;
+    private bool isLoading = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -93,9 +95,10 @@
                 goals = System.Text.Json.JsonSerializer.Deserialize<List<GoalItem>>(json) ?? new List<GoalItem>();
             }
         }
-        catch
+        catch (Exception ex)
         {
             // If loading fails, start with empty list
+            System.Diagnostics.Debug.WriteLine($"Error loading goals from localStorage: {ex.Message}");
             goals = new List<GoalItem>();
         }
     }
@@ -107,14 +110,17 @@
             var json = System.Text.Json.JsonSerializer.Serialize(goals);
             await JSRuntime.InvokeVoidAsync("localStorage.setItem", StorageKey, json);
         }
-        catch
+        catch (Exception ex)
         {
             // Silently fail - data will still work in current session
+            System.Diagnostics.Debug.WriteLine($"Error saving goals to localStorage: {ex.Message}");
         }
     }
 
     private async Task AddGoal()
     {
+        if (isLoading) return;
+
         // Trim and validate the title
         var trimmedTitle = currentTitle?.Trim() ?? string.Empty;
 
@@ -131,6 +137,8 @@
             successMessage = null;
             return;
         }
+
+        isLoading = true;
 
         // Create and add the new goal
         var newGoal = new GoalItem
@@ -150,32 +158,55 @@
         validationMessage = null;
         successMessage = "Goal added successfully!";
 
+        isLoading = false;
+
         // Clear success message after a delay
         _ = Task.Run(async () =>
         {
-            await Task.Delay(3000);
-            successMessage = null;
-            await InvokeAsync(StateHasChanged);
+            try
+            {
+                await Task.Delay(3000);
+                successMessage = null;
+                await InvokeAsync(StateHasChanged);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error clearing success message: {ex.Message}");
+            }
         });
     }
 
     private async Task ToggleGoal(Guid id)
     {
+        if (isLoading) return;
+
+        isLoading = true;
         var goal = GetGoal(id);
         if (goal != null)
         {
             goal.IsCompleted = !goal.IsCompleted;
             await SaveGoalsAsync();
         }
+        isLoading = false;
     }
 
     private async Task DeleteGoal(Guid id)
     {
+        if (isLoading) return;
+
         var goal = GetGoal(id);
         if (goal != null)
         {
+            var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to delete this goal?");
+            if (!confirmed)
+            {
+                return;
+            }
+
+            isLoading = true;
             goals.Remove(goal);
             await SaveGoalsAsync();
+            isLoading = false;
         }
     }
 
