@@ -1,4 +1,6 @@
 @page "/goals"
+@using System.Text.Json
+@inject IJSRuntime JSRuntime
 
 <PageTitle>Goals</PageTitle>
 
@@ -65,12 +67,52 @@
 </div>
 
 @code {
+    private const string StorageKey = "goals-data";
     private List<GoalItem> goals = new();
     private string newGoalTitle = string.Empty;
     private DateTime? newGoalDate;
     private string? validationError;
 
-    private void AddGoal()
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadGoalsFromStorage();
+    }
+
+    private async Task LoadGoalsFromStorage()
+    {
+        try
+        {
+            var json = await JSRuntime.InvokeAsync<string>("localStorage.getItem", StorageKey);
+            if (!string.IsNullOrEmpty(json))
+            {
+                var loadedGoals = JsonSerializer.Deserialize<List<GoalItem>>(json);
+                if (loadedGoals != null)
+                {
+                    goals = loadedGoals;
+                }
+            }
+        }
+        catch
+        {
+            // If loading fails, start with an empty list
+            goals = new();
+        }
+    }
+
+    private async Task SaveGoalsToStorage()
+    {
+        try
+        {
+            var json = JsonSerializer.Serialize(goals);
+            await JSRuntime.InvokeVoidAsync("localStorage.setItem", StorageKey, json);
+        }
+        catch
+        {
+            // Silently fail if storage is not available
+        }
+    }
+
+    private async Task AddGoal()
     {
         // Trim and validate the title
         var trimmedTitle = newGoalTitle?.Trim() ?? string.Empty;
@@ -95,26 +137,31 @@
 
         goals.Add(newGoal);
 
+        // Save to localStorage
+        await SaveGoalsToStorage();
+
         // Clear the form
         newGoalTitle = string.Empty;
         newGoalDate = null;
     }
 
-    private void ToggleGoal(Guid id)
+    private async Task ToggleGoal(Guid id)
     {
         var goal = goals.FirstOrDefault(g => g.Id == id);
         if (goal != null)
         {
             goal.IsCompleted = !goal.IsCompleted;
+            await SaveGoalsToStorage();
         }
     }
 
-    private void DeleteGoal(Guid id)
+    private async Task DeleteGoal(Guid id)
     {
         var goal = goals.FirstOrDefault(g => g.Id == id);
         if (goal != null)
         {
             goals.Remove(goal);
+            await SaveGoalsToStorage();
         }
     }
 
