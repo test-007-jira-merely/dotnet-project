@@ -1,0 +1,139 @@
+@page "/goals"
+
+<PageTitle>Goals</PageTitle>
+
+<h1>Goals</h1>
+
+<div class="goal-form">
+    <h2>Add a New Goal</h2>
+    <div class="form-group mb-3">
+        <label for="goalTitle">Goal Title:</label>
+        <input
+            id="goalTitle"
+            type="text"
+            class="form-control"
+            @bind="newTitle"
+            @oninput="ClearValidationError"
+            placeholder="Enter your goal..." />
+    </div>
+    <div class="form-group mb-3">
+        <label for="targetDate">Target Date (optional):</label>
+        <input
+            id="targetDate"
+            type="date"
+            class="form-control"
+            @bind="newTargetDate" />
+    </div>
+    @if (!string.IsNullOrEmpty(validationError))
+    {
+        <div class="validation-error">
+            @validationError
+        </div>
+    }
+    <button class="btn btn-primary" @onclick="AddGoal">Add Goal</button>
+</div>
+
+<div class="goal-list">
+    <h2>My Goals</h2>
+    @if (goals.Count == 0)
+    {
+        <p class="text-muted">No goals yet. Add one above to get started!</p>
+    }
+    else
+    {
+        <ul class="list-unstyled">
+            @foreach (var goal in goals)
+            {
+                <li class="goal-item @(goal.IsCompleted ? "completed" : "")">
+                    <div class="goal-content">
+                        <div class="goal-info">
+                            <strong class="goal-title">@goal.Title</strong>
+                            @if (goal.TargetDate.HasValue)
+                            {
+                                <span class="goal-date">Target: @goal.TargetDate.Value.ToShortDateString()</span>
+                            }
+                        </div>
+                        <div class="goal-actions">
+                            <button class="btn btn-sm btn-success" @onclick="() => ToggleGoal(goal.Id)">
+                                @(goal.IsCompleted ? "Reopen" : "Complete")
+                            </button>
+                            <button class="btn btn-sm btn-danger" @onclick="() => DeleteGoal(goal.Id)">
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </li>
+            }
+        </ul>
+    }
+</div>
+
+@code {
+    private List<GoalItem> goals = new();
+    private string newTitle = string.Empty;
+    private DateTime? newTargetDate = null;
+    private string? validationError = null;
+
+    private void AddGoal()
+    {
+        // Trim whitespace from title
+        var trimmedTitle = newTitle?.Trim() ?? string.Empty;
+
+        // Validate that title is not empty
+        if (string.IsNullOrWhiteSpace(trimmedTitle))
+        {
+            validationError = "Goal title cannot be empty. Please enter a title.";
+            return;
+        }
+
+        // Create new goal
+        var newGoal = new GoalItem
+        {
+            Id = Guid.NewGuid(),
+            Title = trimmedTitle,
+            TargetDate = newTargetDate,
+            IsCompleted = false
+        };
+
+        // Add to list
+        goals.Add(newGoal);
+
+        // Clear form
+        newTitle = string.Empty;
+        newTargetDate = null;
+        validationError = null;
+    }
+
+    private void ToggleGoal(Guid id)
+    {
+        var goal = goals.FirstOrDefault(g => g.Id == id);
+        if (goal != null)
+        {
+            goal.IsCompleted = !goal.IsCompleted;
+        }
+    }
+
+    private void DeleteGoal(Guid id)
+    {
+        var goal = goals.FirstOrDefault(g => g.Id == id);
+        if (goal != null)
+        {
+            goals.Remove(goal);
+        }
+    }
+
+    private void ClearValidationError(ChangeEventArgs e)
+    {
+        validationError = null;
+        newTitle = e.Value?.ToString() ?? string.Empty;
+    }
+
+    // Goal item model
+    private class GoalItem
+    {
+        public Guid Id { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public DateTime? TargetDate { get; set; }
+        public bool IsCompleted { get; set; }
+    }
+}
