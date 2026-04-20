@@ -1,5 +1,6 @@
 @page "/goals"
 @inject IJSRuntime JSRuntime
+@implements IDisposable
 
 <PageTitle>Goals</PageTitle>
 
@@ -79,6 +80,7 @@
     private string? validationMessage;
     private string? successMessage;
     private bool isLoading = false;
+    private CancellationTokenSource? successMessageCts;
 
     protected override async Task OnInitializedAsync()
     {
@@ -98,8 +100,9 @@
         catch (Exception ex)
         {
             // If loading fails, start with empty list
-            System.Diagnostics.Debug.WriteLine($"Error loading goals from localStorage: {ex.Message}");
+            Console.WriteLine($"Error loading goals from localStorage: {ex.Message}");
             goals = new List<GoalItem>();
+            validationMessage = "Failed to load saved goals. Starting with an empty list.";
         }
     }
 
@@ -112,8 +115,10 @@
         }
         catch (Exception ex)
         {
-            // Silently fail - data will still work in current session
-            System.Diagnostics.Debug.WriteLine($"Error saving goals to localStorage: {ex.Message}");
+            // Log error and inform user
+            Console.WriteLine($"Error saving goals to localStorage: {ex.Message}");
+            validationMessage = "Failed to save goals. Changes will be lost when you close the page.";
+            successMessage = null;
         }
     }
 
@@ -160,20 +165,33 @@
 
         isLoading = false;
 
-        // Clear success message after a delay
-        _ = Task.Run(async () =>
+        // Clear success message after a delay using proper cancellation token
+        successMessageCts?.Cancel();
+        successMessageCts = new CancellationTokenSource();
+        var currentCts = successMessageCts;
+
+        _ = ClearSuccessMessageAsync(currentCts.Token);
+    }
+
+    private async Task ClearSuccessMessageAsync(CancellationToken cancellationToken)
+    {
+        try
         {
-            try
+            await Task.Delay(3000, cancellationToken);
+            if (!cancellationToken.IsCancellationRequested)
             {
-                await Task.Delay(3000);
                 successMessage = null;
                 await InvokeAsync(StateHasChanged);
             }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Error clearing success message: {ex.Message}");
-            }
-        });
+        }
+        catch (TaskCanceledException)
+        {
+            // Expected when a new message is shown before the delay completes
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error clearing success message: {ex.Message}");
+        }
     }
 
     private async Task ToggleGoal(Guid id)
@@ -213,6 +231,12 @@
     private GoalItem? GetGoal(Guid id)
     {
         return goals.FirstOrDefault(g => g.Id == id);
+    }
+
+    public void Dispose()
+    {
+        successMessageCts?.Cancel();
+        successMessageCts?.Dispose();
     }
 
     private class GoalItem
