@@ -1,4 +1,7 @@
 @page "/goals"
+@using TestBlazor.Models
+@using TestBlazor.Services
+@inject GoalsService GoalsService
 
 <PageTitle>Goals</PageTitle>
 
@@ -60,7 +63,12 @@
     private DateTime? newTargetDate = null;
     private string validationMessage = string.Empty;
 
-    private void AddGoal()
+    protected override async Task OnInitializedAsync()
+    {
+        goals = await GoalsService.GetAllGoalsAsync();
+    }
+
+    private async Task AddGoal()
     {
         // Clear previous validation message
         validationMessage = string.Empty;
@@ -74,43 +82,24 @@
             return;
         }
 
-        // Add the new goal
-        goals.Add(new Goal
-        {
-            Id = Guid.NewGuid(),
-            Title = trimmedTitle,
-            TargetDate = newTargetDate,
-            IsCompleted = false
-        });
+        // Add the new goal via service
+        await GoalsService.AddGoalAsync(trimmedTitle, newTargetDate);
+        goals = await GoalsService.GetAllGoalsAsync();
 
         // Clear the form
         newTitle = string.Empty;
         newTargetDate = null;
     }
 
-    private void ToggleGoal(Guid id)
+    private async Task ToggleGoal(Guid id)
     {
-        var goal = goals.FirstOrDefault(g => g.Id == id);
-        if (goal != null)
-        {
-            goal.IsCompleted = !goal.IsCompleted;
-        }
+        await GoalsService.ToggleGoalAsync(id);
+        goals = await GoalsService.GetAllGoalsAsync();
     }
 
-    private void DeleteGoal(Guid id)
+    private async Task DeleteGoal(Guid id)
     {
-        var goal = goals.FirstOrDefault(g => g.Id == id);
-        if (goal != null)
-        {
-            goals.Remove(goal);
-        }
-    }
-
-    private class Goal
-    {
-        public Guid Id { get; set; }
-        public string Title { get; set; } = string.Empty;
-        public DateTime? TargetDate { get; set; }
-        public bool IsCompleted { get; set; }
+        await GoalsService.DeleteGoalAsync(id);
+        goals = await GoalsService.GetAllGoalsAsync();
     }
 }
