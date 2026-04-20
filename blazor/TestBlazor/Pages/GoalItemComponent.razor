@@ -1,0 +1,43 @@
+<div class="goal-item @(IsCompleted ? "completed" : "")">
+    <div class="goal-checkbox">
+        <input type="checkbox" @onchange="OnToggle" checked="@IsCompleted" />
+    </div>
+    <div class="goal-content">
+        <div class="goal-title">@Title</div>
+        @if (TargetDate.HasValue)
+        {
+            <div class="goal-date">Target: @TargetDate.Value.ToString("MMM dd, yyyy")</div>
+        }
+    </div>
+    <button class="btn btn-sm btn-danger" @onclick="OnDelete">Delete</button>
+</div>
+
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+
+    [Parameter]
+    public string Title { get; set; } = string.Empty;
+
+    [Parameter]
+    public DateTime? TargetDate { get; set; }
+
+    [Parameter]
+    public bool IsCompleted { get; set; }
+
+    [Parameter]
+    public EventCallback<Guid> OnToggleGoal { get; set; }
+
+    [Parameter]
+    public EventCallback<Guid> OnDeleteGoal { get; set; }
+
+    private async Task OnToggle()
+    {
+        await OnToggleGoal.InvokeAsync(Id);
+    }
+
+    private async Task OnDelete()
+    {
+        await OnDeleteGoal.InvokeAsync(Id);
+    }
+}
