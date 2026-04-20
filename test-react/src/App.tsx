@@ -1,22 +1,20 @@
 import { Routes, Route, NavLink } from 'react-router-dom'
 import HomePage from './pages/HomePage'
 import HelloPage from './pages/HelloPage'
+import NotFoundPage from './pages/NotFoundPage'
 import './App.css'
+
+const getNavLinkClassName = ({ isActive }: { isActive: boolean }) =>
+  isActive ? 'nav-link active' : 'nav-link'
 
 function App() {
   return (
     <div className="app">
       <nav className="main-nav">
-        <NavLink
-          to="/"
-          className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
-        >
+        <NavLink to="/" className={getNavLinkClassName}>
           Home
         </NavLink>
-        <NavLink
-          to="/hello"
-          className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
-        >
+        <NavLink to="/hello" className={getNavLinkClassName}>
           Hello
         </NavLink>
       </nav>
@@ -25,18 +23,7 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/hello" element={<HelloPage />} />
-          <Route
-            path="*"
-            element={
-              <div className="not-found">
-                <h1>404</h1>
-                <p>Page not found</p>
-                <NavLink to="/" className="back-link">
-                  Go to Home
-                </NavLink>
-              </div>
-            }
-          />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>
     </div>
