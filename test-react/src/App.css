@@ -1,3 +1,86 @@
+/* Utility Classes */
+*:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.page-centered {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  place-content: center;
+  place-items: center;
+  flex-grow: 1;
+  padding: 32px 20px;
+
+  @media (max-width: 1024px) {
+    padding: 24px 20px;
+  }
+}
+
+.page-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-grow: 1;
+  font-size: 18px;
+  color: var(--text);
+}
+
+.btn {
+  font-size: 16px;
+  padding: 10px 20px;
+  border-radius: 6px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  border: 2px solid transparent;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+
+.btn-primary {
+  color: var(--text-h);
+  background: var(--accent-bg);
+  border-color: var(--accent-border);
+
+  &:hover {
+    background: var(--accent);
+    color: var(--bg);
+    border-color: var(--accent);
+  }
+}
+
+/* Navigation */
+nav {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  padding: 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+nav a {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text);
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  transition: color 0.3s, background 0.3s;
+
+  &:hover {
+    color: var(--text-h);
+    background: var(--social-bg);
+  }
+
+  &.active {
+    color: var(--accent);
+    background: var(--accent-bg);
+  }
+}
+
+/* Counter */
 .counter {
   font-size: 16px;
   padding: 5px 10px;
@@ -10,10 +93,6 @@
 
   &:hover {
     border-color: var(--accent-border);
-  }
-  &:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
   }
 }
 
@@ -57,15 +136,7 @@
 }
 
 #center {
-  display: flex;
-  flex-direction: column;
-  gap: 25px;
-  place-content: center;
-  place-items: center;
-  flex-grow: 1;
-
   @media (max-width: 1024px) {
-    padding: 32px 20px 24px;
     gap: 18px;
   }
 }
@@ -153,13 +224,6 @@
   }
 }
 
-#spacer {
-  height: 88px;
-  border-top: 1px solid var(--border);
-  @media (max-width: 1024px) {
-    height: 48px;
-  }
-}
 
 .ticks {
   position: relative;

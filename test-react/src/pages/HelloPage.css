@@ -1,0 +1,6 @@
+.welcome-message {
+  max-width: 600px;
+  font-size: 18px;
+  line-height: 145%;
+  color: var(--text);
+}
