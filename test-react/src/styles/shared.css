@@ -1,0 +1,43 @@
+/* Shared interactive element styles - base for buttons, links, and interactive components */
+.interactive-btn {
+  font-size: 16px;
+  color: var(--accent);
+  background: var(--accent-bg);
+  border: 2px solid transparent;
+  border-radius: 6px;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.interactive-btn:hover {
+  border-color: var(--accent-border);
+  box-shadow: var(--shadow);
+}
+
+.interactive-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Size variants */
+.interactive-btn-sm {
+  padding: 5px 10px;
+}
+
+.interactive-btn-md {
+  padding: 12px 24px;
+}
+
+/* Shared focus-visible utility for all interactive elements */
+.focus-accent:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Responsive breakpoint documentation */
+/*
+  Standard breakpoint: 1024px (tablet/desktop threshold)
+  Used throughout the application for consistent responsive behavior
+*/
