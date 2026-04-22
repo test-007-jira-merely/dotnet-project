@@ -1,0 +1,28 @@
+.hello-content {
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.hello-content h1 {
+  font-size: 3rem;
+  margin: 0;
+  background: linear-gradient(135deg, var(--accent) 0%, #6366f1 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.welcome-text {
+  font-size: 1.25rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.info-text {
+  font-size: 1rem;
+  line-height: 1.6;
+  opacity: 0.8;
+  margin: 0;
+}
