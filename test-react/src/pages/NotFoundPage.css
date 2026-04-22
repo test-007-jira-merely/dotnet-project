@@ -1,0 +1,57 @@
+.not-found-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1;
+  padding: 32px 20px;
+}
+
+.not-found-content {
+  max-width: 600px;
+  text-align: center;
+
+  h1 {
+    font-size: 6em;
+    line-height: 1;
+    margin-bottom: 0.5em;
+    color: var(--text-h);
+    opacity: 0.3;
+  }
+
+  .error-message {
+    font-size: 1.5em;
+    font-weight: 600;
+    margin-bottom: 0.5em;
+    color: var(--text-h);
+  }
+
+  .description {
+    margin-bottom: 2em;
+    line-height: 1.6;
+    color: var(--text);
+  }
+
+  .home-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: 500;
+
+    &:hover {
+      box-shadow: var(--shadow);
+    }
+  }
+
+  @media (max-width: 1024px) {
+    h1 {
+      font-size: 4em;
+    }
+
+    .error-message {
+      font-size: 1.3em;
+    }
+  }
+}
